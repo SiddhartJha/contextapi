@@ -1,0 +1,106 @@
+First of all we made a folder named context. In this folder we will create our contexts.
+in contexts we will make a file named Theme.js in which we will create a context. 
+
+Steps of creating context:
+  a. import createContext and useContext from react.
+  b. Now we will create context using createContext and will name it as ThemeContext.
+              export const ThemeContext = createContext({     
+                 themeMode: "light",
+                 darkTheme: () => {},
+                 lightTheme: () => {}
+             })
+  c. here we created context and passed a default object to it.
+  d. createContext: This function creates a new Context object. In React, Context 
+     is used to pass data through the component tree without having to pass props down manually at every level. 
+  e. Now this line comes:
+       export const ThemeProvider = ThemeContext.Provider;
+  f. ThemeProvider: This is a special component in React that lets you share specific data (like theme settings) 
+       with all the components inside it. 
+  g. When you wrap parts of your app with `ThemeProvider`, you can set a custom theme and functions for switching
+       themes. If you don't use `ThemeProvider`, the components will use the default theme settings instead. 
+  h. Now we will make a custom hook named useTheme() which returns useContext(ThemeContext). we are doing this 
+       so that we do not have to import and write useContext(ThemeContext). basically by making useTheme() we are
+       reducing our work of writing and importing useContext(ThemeContext) again and again.
+  i. here the work of creating context is completed.
+  j. Now let's go to App.jsx.     
+
+In App.jsx we will wrap the components with <ThemeProvider></ThemeProvider>.
+the components which are wrapped with ThemeProvider can access the context values.
+Now we will provide ThemeProvider the values as: <ThemeProvider value={{ themeMode, lightTheme, darkTheme }}>
+ By wrapping components with ThemeProvider, you can pass specific values for themeMode, darkTheme, and lightTheme, 
+ overriding the defaults.
+ here also we have override the values of darkTheme and lightTheme as: 
+ const [themeMode, setThemeMode] = useState("Light");
+
+  const lightTheme = () => {
+    setThemeMode("light");
+  };
+
+  const darkTheme = () => {
+    setThemeMode("dark");
+  };
+  
+by default lightTheme and darkTheme were empty methods. Now we have overridden these methods.
+Now the components wrapped inside ThemeProvider can access the overridden values.
+The components wrapped inside ThemeProvider in this case or project are: 
+<Theme />
+<Card />
+Now we will use the useEffect hook to add and remove themeMode.
+ useEffect(() => {
+    document.querySelector("html").classList.remove("light", "dark"),
+      document.querySelector("html").classList.add(themeMode);
+  }, [themeMode]);
+Here, document.querySelector("html").classList.remove("light", "dark"): This is like removing the current 
+color of the light before setting a new one. 
+document.querySelector("html").classList.add(themeMode): This is like setting the new color based on the 
+button you pressed on the remote (themeMode). 
+useEffect(() => { ... }, [themeMode]);: This runs the color-changing process every time you press a button 
+on the remote (every time themeMode changes).
+
+Now, we will go to the Theme.jsx file in components where Theme component is defined.
+First we will useTheme because we want to access its context values:
+const { themeMode, lightTheme, darkTheme } = useTheme();
+
+Here, we will make a input of type checkbox.
+<input
+        type="checkbox"
+        value=""
+        className="sr-only peer"
+        onChange={onChangebtn}
+        checked={themeMode === "dark"}
+      />
+Here, in onChange the onChangebtn is passed and its definition is like:
+const onChangebtn = (e) => {
+    const darkModeStatus = e.currentTarget.checked;
+    if (darkModeStatus) {
+      darkTheme();
+    } else {
+      lightTheme();
+    }
+};
+
+onChangebtn: This function is called when the user interacts with the toggle switch.
+e.currentTarget.checked: Determines whether the toggle is switched on (dark mode) or off (light mode).
+Switching Themes:
+If the toggle is checked, the darkTheme function is called to activate dark mode.
+If unchecked, the lightTheme function is called to activate light mode.
+
+
+NOTE: Don't forget to write darkMode: "class" in tailwind.config.js file.
+
+
+RANDOM CASE: 
+
+Suppose at first the checked box is not checked and the value inside themeMode is light.
+let's click on the toggle button.
+After clicking the toggle button, onChangebtn button inside onChange will run inside it it will check the checked 
+box which is not checked. so it will run the code inside the else. inside else lightTheme() method will run 
+lightTheme() method will make the value of themeMode as "dark".
+As the value of themeMode is changed. so, the useEffect will run because themeMode is passed in dependency array
+of useEffect.
+So, as useEffect will be executed it will remove the value inside the class of html element whether it is light or
+dark.
+After removing it will add the current value of themeMode in the class of html.
+
+Now the css of every component will be adjusted accoring to the value of class in html.
+In this case the theme will be dark.
